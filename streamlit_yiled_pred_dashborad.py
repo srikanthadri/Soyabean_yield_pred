@@ -14,8 +14,8 @@ st.caption("District-wise yield + monthly weather & phenology comparisons (Hist 
 # -----------------------------
 # INPUTS
 # -----------------------------
-DEFAULT_DATA = r"F:\COMSNAP_Sureshsir\soya\modeltest\yiled\soy_yield_features_new_rs.csv"
-DEFAULT_PRED = r"F:\COMSNAP_Sureshsir\soya\modeltest\yiled\soy_yield_predictions_2025.csv"  # optional
+DEFAULT_DATA = r"soy_yield_features_new_rs.csv"
+DEFAULT_PRED = r"soy_yield_predictions_2025.csv"  # optional
 
 st.sidebar.header("📁 Data Inputs")
 data_path = st.sidebar.text_input("Master features CSV:", DEFAULT_DATA)
@@ -251,3 +251,4 @@ st.download_button(
     file_name=f"soy_{sel_state}_{sel_district}_rows.csv".replace(" ", "_"),
     mime="text/csv"
 )
+
