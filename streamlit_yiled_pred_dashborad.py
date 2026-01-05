@@ -405,7 +405,8 @@ with map_col:
     if map_theme != "Acreage Stability Class" and yield_cmap is not None:
         yield_cmap.add_to(m)
 
-    map_data = st_folium(m, width="100%", height=550, key="soy_map")
+    map_data = st_folium(m, height=550, use_container_width=True, key="soy_map")
+
 
 # Determine selected district from click
 all_districts = sorted(df_view[district_col_csv].dropna().unique())
@@ -545,4 +546,5 @@ cols_to_show = [
 cols_to_show = [c for c in cols_to_show if c is not None and c in df_view.columns]
 
 st.dataframe(df_view[cols_to_show].copy().sort_values(district_col_csv), use_container_width=True)
+
 
