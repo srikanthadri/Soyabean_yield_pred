@@ -207,25 +207,27 @@ if state_col_csv not in acre_df.columns and "State" in gdf_join.columns:
 # ------------------------------------------------
 @st.cache_data
 def load_yield_features(path: str) -> pd.DataFrame:
-    ydf = pd.read_csv(path)
+    ydf_local = pd.read_csv(path)
+
     for c in ["State", "District", "Year"]:
-        if c not in ydf.columns:
+        if c not in ydf_local.columns:
             raise ValueError(f"Missing '{c}' in yield features CSV")
 
-    ydf["Year"] = pd.to_numeric(ydf["Year"], errors="coerce")
+    ydf_local["Year"] = pd.to_numeric(ydf_local["Year"], errors="coerce")
 
-    if "Yield" in ydf.columns:
-        ydf["Yield"] = pd.to_numeric(ydf["Yield"], errors="coerce")
+    if "Yield" in ydf_local.columns:
+        ydf_local["Yield"] = pd.to_numeric(ydf_local["Yield"], errors="coerce")
 
-    ydf["State"] = ydf["State"].astype(str).str.strip()
-    ydf["District"] = ydf["District"].astype(str).str.strip()
-    ydf["State_key"] = norm(ydf["State"])
-    ydf["District_key"] = norm(ydf["District"])
-    return ydf
+    ydf_local["State"] = ydf_local["State"].astype(str).str.strip()
+    ydf_local["District"] = ydf_local["District"].astype(str).str.strip()
+    ydf_local["State_key"] = norm(ydf_local["State"])
+    ydf_local["District_key"] = norm(ydf_local["District"])
+    return ydf_local
+
 
 @st.cache_data
 def load_yield_predictions(path: str, curr_year: int) -> pd.DataFrame:
-    if not path or not Path(path).exists():
+    if (not path) or (not Path(path).exists()):
         return pd.DataFrame(columns=["State_key", "District_key", "Year", "Predicted_2025_Yield"])
 
     pdf = pd.read_csv(path)
@@ -239,6 +241,7 @@ def load_yield_predictions(path: str, curr_year: int) -> pd.DataFrame:
     pdf["State_key"] = norm(pdf["State"])
     pdf["District_key"] = norm(pdf["District"])
 
+    # locate predicted yield column
     if "Predicted_Yield" in pdf.columns:
         ycol = "Predicted_Yield"
     elif "Predicted_2025_Yield" in pdf.columns:
@@ -255,19 +258,24 @@ def load_yield_predictions(path: str, curr_year: int) -> pd.DataFrame:
     out["Predicted_2025_Yield"] = pd.to_numeric(out["Predicted_2025_Yield"], errors="coerce")
     return out
 
+
+# ✅ ALWAYS create ydf first; stop immediately if fails
 try:
     ydf = load_yield_features(yield_features_csv)
-    ypred = load_yield_predictions(yield_pred_csv, int(CURR_YEAR))
 except Exception as e:
-    st.error(f"Error loading yield files: {e}")
+    st.error(f"Error loading yield features CSV: {e}")
     st.stop()
 
-# Merge predictions into yield features (2025 rows get Predicted_2025_Yield)
+# predictions are optional; if fail, continue with empty df
+try:
+    ypred = load_yield_predictions(yield_pred_csv, int(CURR_YEAR))
+except Exception as e:
+    st.warning(f"Predictions CSV could not be loaded (continuing without it): {e}")
+    ypred = pd.DataFrame(columns=["State_key", "District_key", "Year", "Predicted_2025_Yield"])
+
+# ✅ Safe merge (works even if ypred is empty)
 ydf = ydf.merge(ypred, on=["State_key", "District_key", "Year"], how="left")
 
-# Attach predicted yield into map gdf (2025 only)
-y_map = ydf.loc[ydf["Year"] == CURR_YEAR, ["State_key", "District_key", "Predicted_2025_Yield"]].drop_duplicates()
-gdf_join = gdf_join.merge(y_map, on=["State_key", "District_key"], how="left")
 
 # ------------------------------------------------
 # 5. SIDEBAR FILTERS
