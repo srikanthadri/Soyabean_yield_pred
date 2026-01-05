@@ -159,11 +159,18 @@ def load_acreage_table(path):
     return df
 
 @st.cache_data
+
 def load_shapefile(path):
     gdf = gpd.read_file(path)
 
     if district_col_shp not in gdf.columns:
         raise ValueError(f"Column '{district_col_shp}' not found in shapefile")
+
+    # ✅ Ensure CRS exists + convert to EPSG:4326 for Folium
+    if gdf.crs is None:
+        raise ValueError("Shapefile CRS is missing. Define CRS before mapping (e.g., gdf.set_crs(...)).")
+    if gdf.crs.to_epsg() != 4326:
+        gdf = gdf.to_crs(epsg=4326)
 
     gdf["District"] = gdf[district_col_shp].astype(str).str.strip()
     gdf["District_key"] = norm(gdf["District"])
@@ -176,6 +183,7 @@ def load_shapefile(path):
         gdf["State_key"] = "NA"
 
     return gdf
+
 
 try:
     acre_df = load_acreage_table(acreage_csv_path)
@@ -537,3 +545,4 @@ cols_to_show = [
 cols_to_show = [c for c in cols_to_show if c is not None and c in df_view.columns]
 
 st.dataframe(df_view[cols_to_show].copy().sort_values(district_col_csv), use_container_width=True)
+
