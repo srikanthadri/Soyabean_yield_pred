@@ -1,0 +1,112 @@
+District,Years_Available,Mean_Acreage,Std_Acreage,CV(%),Trend_Slope,Acreage_Stability_Class,R2,Predicted_2025_Acreage,Acreage_2024
+Agar Malwa,5,1.595,0.158,9.92,-0.0113,Stable Acreage,-5.115565632,1.61240625,1.504
+Ahamadnagar,4,1.51,0.178,11.77,0.0676,Moderately Variable,,1.35456625,1.506
+Akola,5,2.212,0.058,2.64,0.0179,Stable Acreage,0.913684002,1.9460825,2.285
+Alirajpur,5,0.33,0.017,5.08,-0.0003,Stable Acreage,0.90436382,0.36798375,0.308
+Amaravati,5,2.341,0.096,4.11,-0.007,Stable Acreage,0.93922928,1.93837875,2.466
+Anuppur,5,0.063,0.009,15.08,0.0058,Marginal Acreage (Statistically Unstable),-0.533654171,0.08423125,0.068
+Ashoknagar,5,1.561,0.749,47.97,-0.4098,Highly Volatile / Crop Switching Likely,0.494567375,1.6295975,1.589
+Aurangabad,5,0.292,0.027,9.37,-0.0048,Stable Acreage,0.436334572,0.230475,0.268
+Banswara,5,0.664,0.022,3.33,-0.0021,Stable Acreage,-3.626514195,0.592485,0.663
+Baran,5,2.193,0.119,5.45,-0.001,Stable Acreage,-0.286930197,2.20900625,2.225
+Barwani,5,0.262,0.021,7.82,-0.0094,Stable Acreage,-8.953034701,0.227805,0.27
+Betul,5,1.925,0.358,18.58,-0.1722,Moderately Variable,-2.280745455,2.1206775,2.107
+Bhandara,5,0.007,0.004,63.59,0.0009,Marginal Acreage (Statistically Unstable),-10.43915469,0.006245,0.009
+Bhilwara,5,0.078,0.011,13.67,-0.0013,Marginal Acreage (Statistically Unstable),0.629298229,0.09392625,0.078
+Bhopal,5,1.055,0.114,10.81,-0.0074,Moderately Variable,0.100931238,1.0517775,1.016
+Bhopal Division,5,10.716,0.926,8.64,0.474,Stable Acreage,-56.42387262,,11.123
+Bid,5,3.055,0.334,10.93,0.1909,Moderately Variable,-0.59905535,3.24162375,3.211
+Buldhana,5,3.81,0.358,9.4,0.2137,Stable Acreage,0.720692367,4.00099375,3.94
+Bundi,5,0.511,0.108,21.23,-0.036,Moderately Variable,-0.035407592,0.60623125,0.54
+Burhanpur,5,0.183,0.011,6.24,0.0056,Marginal Acreage (Statistically Unstable),-1.493835677,0.16901125,0.185
+Chandrapur,5,0.626,0.101,16.16,-0.0448,Moderately Variable,-3.607393999,0.60522625,0.607
+Chhatarpur,5,0.188,0.158,84.01,0.0733,Marginal Acreage (Statistically Unstable),0.568304883,0.16405,0.149
+Chhindwara,4,0.292,0.174,59.51,-0.0932,Highly Volatile / Crop Switching Likely,,0.174785,0.173
+Chittaurgarh,5,1.043,0.103,9.88,-0.0528,Stable Acreage,0.650397662,1.10029875,1.037
+Damoh,5,0.6,0.251,41.79,-0.0311,Highly Volatile / Crop Switching Likely,0.681016614,0.48750125,0.432
+Datia,4,0.004,0.005,104.06,0.0018,Marginal Acreage (Statistically Unstable),,0.010025,0.004
+Dewas,5,3.414,0.306,8.98,-0.0562,Stable Acreage,-1.239047436,3.2730425,3.361
+Dhar,5,2.616,0.313,11.98,0.1733,Moderately Variable,0.672417903,1.93353125,2.812
+Dhule,5,0.199,0.056,27.94,-0.02,Marginal Acreage (Statistically Unstable),0.615594042,0.155685,0.165
+Dindori,4,0.07,0.01,14.92,-0.0055,Marginal Acreage (Statistically Unstable),,0.08213875,0.068
+Dungarpur,5,0.359,0.036,10.01,-0.0107,Moderately Variable,0.258475492,0.4163825,0.373
+Gadchiroli,5,0.002,0.003,127.07,-0.0001,Marginal Acreage (Statistically Unstable),0.560027829,0.00425625,0.004
+Guna,5,1.613,1.046,64.84,-0.6244,Highly Volatile / Crop Switching Likely,0.867977001,0.970295,0.945
+Gwalior,5,0.188,0.4,212.92,0.1808,Marginal Acreage (Statistically Unstable),0.438571763,0.0084075,0.01
+Gwalior Division,5,4.454,2.283,51.27,-1.3668,Highly Volatile / Crop Switching Likely,-0.174470717,,3.821
+Harda,5,1.533,0.364,23.72,-0.1425,Moderately Variable,0.42519848,1.691635,1.778
+Hingoli,5,2.293,0.169,7.37,0.0683,Stable Acreage,0.47601535,2.010345,2.194
+Hoshangabad,5,0.508,0.181,35.65,-0.0943,Highly Volatile / Crop Switching Likely,0.864160599,0.3915075,0.379
+Hoshangabad Division,5,3.966,0.796,20.06,-0.409,Moderately Variable,-4.808246878,,4.264
+Indore,5,2.115,0.146,6.91,0.016,Stable Acreage,0.43396839,2.00015,2.179
+Indore Division,5,8.756,0.638,7.28,0.2951,Stable Acreage,-38.06169701,,9.356
+Jabalpur,4,0.001,0.002,151.44,0.0003,Marginal Acreage (Statistically Unstable),,0.01029875,0.004
+Jabalpur Division,5,0.852,0.141,16.55,-0.0801,Moderately Variable,-8.756877368,,0.764
+Jalgaon,5,0.197,0.065,33.26,0.0192,Marginal Acreage (Statistically Unstable),-2.963518604,0.1358025,0.151
+Jalna,5,1.867,0.108,5.81,0.0579,Stable Acreage,-7.910683968,1.83026875,1.883
+Jhabua,5,0.75,0.064,8.47,0.0401,Stable Acreage,0.380481324,0.900635,0.795
+Jhalawar,5,2.109,0.316,14.99,0.0552,Moderately Variable,0.852364151,2.76978125,2.512
+Katni,1,0.002,,,,Marginal Acreage (Statistically Unstable),,,#N/A
+Khandwa,5,1.814,0.129,7.13,0.0358,Stable Acreage,0.738224614,1.95598125,1.962
+Khargone,5,0.687,0.104,15.18,0.032,Moderately Variable,0.882360669,0.96064375,0.845
+Kolhapur,5,0.389,0.03,7.66,-0.0148,Stable Acreage,0.707945413,0.35680625,0.376
+Kota,5,1.594,0.209,13.08,0.0346,Moderately Variable,0.515165388,1.71710375,1.8
+Latur,5,4.383,0.262,5.99,0.0935,Stable Acreage,0.710964256,4.72599,4.692
+Mandla,1,0,,,,Marginal Acreage (Statistically Unstable),,,#N/A
+Mandsaur,5,2.834,0.354,12.51,0.1331,Moderately Variable,0.725464883,3.2303625,3.162
+Morena,4,0.018,0.008,45.39,-0.0035,Marginal Acreage (Statistically Unstable),,0.018265,0.015
+Morena Division,5,0.147,0.081,54.98,-0.0376,Marginal Acreage (Statistically Unstable),-1.763327314,,0.091
+Nagpur,5,0.789,0.066,8.39,-0.0325,Stable Acreage,-15.94821045,0.813265,0.787
+Nanded,5,4.119,0.24,5.83,-0.0206,Stable Acreage,0.567820566,3.96378875,3.746
+Nandurbar,5,0.291,0.011,3.69,-0.0018,Stable Acreage,0.032086912,0.26655625,0.279
+Narsimhapur,4,0.277,0.077,27.92,0.0407,Highly Volatile / Crop Switching Likely,,0.3666675,0.337
+Nashik,5,0.959,0.094,9.85,0.0051,Stable Acreage,0.907633883,1.0861475,1.058
+Neemuch,5,1.254,0.144,11.49,-0.0866,Moderately Variable,-0.411531269,1.17810875,1.165
+Panna,5,0.022,0.018,79.27,-0.0107,Marginal Acreage (Statistically Unstable),0.846221372,0.0103525,0.006
+Parbhani,5,2.397,0.13,5.42,0.035,Stable Acreage,0.239931505,2.1169825,2.28
+Pratapgarh,5,1.096,0.15,13.64,0.0332,Moderately Variable,0.140765136,1.20530125,1.235
+Pune,4,0.426,0.027,6.3,-0.0005,Stable Acreage,,0.40865125,0.428
+Raisen,5,0.507,0.034,6.62,-0.0131,Stable Acreage,0.36639281,0.53570625,0.478
+Raj Samand,1,0.033,,,,Marginal Acreage (Statistically Unstable),,,
+Rajgarh,5,3.406,0.434,12.73,0.2312,Moderately Variable,0.825824516,3.13764375,3.37
+Ratlam,5,2.661,0.195,7.31,-0.0639,Stable Acreage,0.924304439,2.51117125,2.464
+Rewa,5,0.007,0.002,28.02,-0.0009,Marginal Acreage (Statistically Unstable),-1.100895312,0.01115875,0.007
+Rewa Division,5,0.065,0.049,74.29,-0.0305,Marginal Acreage (Statistically Unstable),0.027086553,,0.033
+Sagar,5,2.416,0.141,5.82,-0.039,Stable Acreage,0.189153187,2.67932625,2.495
+Sagar Division,5,3.35,0.439,13.1,-0.0624,Moderately Variable,-3.276872739,,3.158
+Sangli,5,0.394,0.101,25.55,-0.0545,Highly Volatile / Crop Switching Likely,0.511460286,0.32180125,0.351
+Satara,5,0.778,0.015,1.94,-0.0018,Stable Acreage,-21.5532389,0.7870425,0.773
+Satna,5,0.058,0.047,81.53,-0.0294,Marginal Acreage (Statistically Unstable),0.849202675,0.02384,0.026
+Sawai Madhopur,5,0.035,0.008,22.9,0.0003,Marginal Acreage (Statistically Unstable),-2.827439536,0.03477125,0.035
+Sehore,5,2.945,0.24,8.15,0.1326,Stable Acreage,0.595035555,3.1294175,3.098
+Seoni,4,0.191,0.042,21.85,-0.0222,Marginal Acreage (Statistically Unstable),,0.17986875,0.182
+Shahdol,5,0.097,0.02,20.26,0.0111,Marginal Acreage (Statistically Unstable),0.281618814,0.0983225,0.1
+Shahdol Division,5,0.168,0.032,19.2,0.0202,Marginal Acreage (Statistically Unstable),-4.804458398,,0.183
+Shajapur,5,2.691,0.185,6.89,-0.0355,Stable Acreage,-7.536375489,2.5761325,2.583
+Sheopur,2,0.095,0.092,96.76,-0.0325,Marginal Acreage (Statistically Unstable),,0.18550875,
+Sheopur Kalan,3,0.158,0.072,45.52,-0.067,Marginal Acreage (Statistically Unstable),,,0.076
+Shivpuri,5,1.27,0.581,45.79,-0.3332,Highly Volatile / Crop Switching Likely,0.764564444,1.20434125,1.273
+Sidhi,2,0.001,0.001,141.42,0.002,Marginal Acreage (Statistically Unstable),,,
+Solapur,4,0.934,0.358,38.32,0.1942,Highly Volatile / Crop Switching Likely,,1.16363875,1.159
+Tikamgarh,5,0.124,0.091,73.48,-0.0549,Marginal Acreage (Statistically Unstable),-1.073061219,0.08243875,0.076
+Udaipur,5,0.411,0.068,16.65,0.0079,Moderately Variable,-0.511606322,0.47766625,0.437
+Ujjain,5,4.887,0.245,5.02,0.0426,Stable Acreage,0.529830051,4.74785875,4.977
+Ujjain Division,5,19.336,0.894,4.62,-0.0778,Stable Acreage,-684.3062982,,19.216
+Umaria,5,0.008,0.006,83.53,0.0033,Marginal Acreage (Statistically Unstable),0.959557783,0.0189475,0.015
+Usmanabad,5,4.063,0.422,10.38,0.2539,Moderately Variable,0.738680699,4.60032875,4.358
+Vidisha,5,2.805,0.343,12.24,0.1287,Moderately Variable,0.816392857,3.041125,3.161
+Wardha,5,1.18,0.052,4.41,0.027,Stable Acreage,-1.768678655,1.1761075,1.243
+Washim,5,2.75,0.131,4.77,-0.0305,Stable Acreage,0.713198183,1.92191375,2.553
+Yavatmal,5,2.682,0.432,16.1,-0.1957,Moderately Variable,-0.528852401,1.9524075,2.233
+Amravati Division,5,13.795,0.44,3.19,-0.0016,Stable Acreage,-3796.254585,,13.477
+Aurangabad Division,5,5.213,0.429,8.23,0.244,Stable Acreage,-184.0385581,,5.362
+Bhilwara Division,5,1.795,0.692,38.53,-0.3471,Highly Volatile / Crop Switching Likely,-0.396162591,,1.14
+Kolhapur Division,5,1.559,0.131,8.39,-0.0711,Stable Acreage,-2.569140628,,1.5
+Kota Division,5,6.439,0.645,10.01,0.0531,Moderately Variable,-60.40778494,,7.112
+Latur Division,5,17.255,0.792,4.59,0.4301,Stable Acreage,-501.3119076,,17.27
+Nagpur Division,5,2.626,0.166,6.31,-0.0695,Stable Acreage,-6.207718484,,2.65
+Nasik Division,5,1.644,0.032,1.93,0.0025,Stable Acreage,-16.8949563,,1.653
+Pune Division,5,2.906,0.466,16.03,0.2813,Moderately Variable,-0.869157418,,3.093
+Udaipur Division,5,1.914,0.664,34.7,0.3353,Highly Volatile / Crop Switching Likely,-0.479797758,,2.875
+Salumber,2,0.167,,,,Marginal Acreage (Statistically Unstable),,,0.167
+Tonk,4,0.027,0.003,9.8,-0.0005,Marginal Acreage (Statistically Unstable),,,0.025
