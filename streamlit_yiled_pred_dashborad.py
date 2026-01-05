@@ -1,17 +1,17 @@
 # streamlit_soy_acreage_plus_yield_map.py
 # ------------------------------------------------------------
-# STARTING POINT: Your Acreage Stability dashboard (reference code you shared)
-# UPDATE: Add Yield Prediction layers + Weather/Phenology plots on district click
+# Soybean Acreage Stability + Yield Forecast Dashboard (FULL CODE)
 #
-# What it does:
-# 1) Keeps your Acreage Stability map + filters + district KPI panel
-# 2) Adds a second map layer (toggle) colored by Predicted 2025 Yield
-# 3) On district click, shows small monthly charts:
-#    PRCP, TMAX, TMIN, LAI, GPP (Hist mean vs 2024 vs 2025)
-# 4) Uses your yield features CSV + optional predictions CSV for 2025
+# ✅ Includes:
+# 1) Acreage stability choropleth + Yield 2025 choropleth (toggle)
+# 2) Map click selects district (syncs with sidebar dropdown)
+# 3) District KPIs (Acreage + Yield)
+# 4) Monthly driver plots (Hist mean vs 2024 vs 2025): PRCP, TMAX, TMIN, RH (optional), LAImax (optional), GPPsum (optional)
 #
 # Requirements:
-# pip install streamlit pandas geopandas matplotlib folium streamlit-folium branca
+#   pip install streamlit pandas geopandas matplotlib folium streamlit-folium branca
+# Run:
+#   streamlit run streamlit_soy_acreage_plus_yield_map.py
 # ------------------------------------------------------------
 
 import streamlit as st
@@ -52,15 +52,12 @@ st.markdown(
 DEFAULT_ACREAGE_CSV = r"District_Acreage_Variation_R2_2025_f.csv"
 DEFAULT_SHP         = r"3states.shp"
 
-# yield master + predictions
 DEFAULT_YIELD_FEATURES = r"soy_yield_features_new_rs.csv"
 DEFAULT_YIELD_PRED     = r"soy_yield_predictions_2025.csv"  # optional
 
 st.sidebar.header("🔧 Data Inputs")
-
 acreage_csv_path = st.sidebar.text_input("Acreage stability CSV path:", DEFAULT_ACREAGE_CSV)
 shp_path         = st.sidebar.text_input("Shapefile path (districts):", DEFAULT_SHP)
-
 yield_features_csv = st.sidebar.text_input("Yield features CSV path:", DEFAULT_YIELD_FEATURES)
 yield_pred_csv     = st.sidebar.text_input("Yield predictions CSV (optional):", DEFAULT_YIELD_PRED)
 
@@ -140,35 +137,34 @@ def plot_monthly_small(df_dist: pd.DataFrame, prefix: str, title: str, ylabel: s
 # 3. LOAD DATA (ACREAGE + SHAPE)
 # ------------------------------------------------
 @st.cache_data
-def load_acreage_table(path):
+def load_acreage_table(path: str) -> pd.DataFrame:
     df = pd.read_csv(path)
 
-    if district_col_csv not in df.columns:
-        raise ValueError(f"Column '{district_col_csv}' not found in acreage CSV")
-    if "Acreage_Stability_Class" not in df.columns:
-        raise ValueError("Column 'Acreage_Stability_Class' not found in acreage CSV")
-    if "Predicted_2025_Acreage" not in df.columns:
-        raise ValueError("Column 'Predicted_2025_Acreage' not found in acreage CSV")
+    required = [district_col_csv, "Acreage_Stability_Class", "Predicted_2025_Acreage"]
+    for c in required:
+        if c not in df.columns:
+            raise ValueError(f"Missing '{c}' in acreage CSV")
 
     df["District_key"] = norm(df[district_col_csv])
+
     if state_col_csv in df.columns:
         df[state_col_csv] = df[state_col_csv].astype(str).str.strip()
         df["State_key"] = norm(df[state_col_csv])
     else:
         df["State_key"] = "NA"
+
     return df
 
 @st.cache_data
-
-def load_shapefile(path):
+def load_shapefile(path: str) -> gpd.GeoDataFrame:
     gdf = gpd.read_file(path)
 
     if district_col_shp not in gdf.columns:
         raise ValueError(f"Column '{district_col_shp}' not found in shapefile")
 
-    # ✅ Ensure CRS exists + convert to EPSG:4326 for Folium
+    # Ensure CRS exists + convert to EPSG:4326 (Folium requires lat/lon)
     if gdf.crs is None:
-        raise ValueError("Shapefile CRS is missing. Define CRS before mapping (e.g., gdf.set_crs(...)).")
+        raise ValueError("Shapefile CRS is missing. Set CRS in GIS or in code (gdf.set_crs(...)) and retry.")
     if gdf.crs.to_epsg() != 4326:
         gdf = gdf.to_crs(epsg=4326)
 
@@ -182,8 +178,15 @@ def load_shapefile(path):
         gdf["State"] = "NA"
         gdf["State_key"] = "NA"
 
-    return gdf
+    # Fix many invalid polygon issues (safe)
+    gdf = gdf[gdf.geometry.notnull()].copy()
+    try:
+        gdf["geometry"] = gdf["geometry"].buffer(0)
+    except Exception:
+        pass
+    gdf = gdf[gdf.is_valid].copy()
 
+    return gdf
 
 try:
     acre_df = load_acreage_table(acreage_csv_path)
@@ -192,7 +195,7 @@ except Exception as e:
     st.error(f"Error loading acreage or shapefile: {e}")
     st.stop()
 
-# Join acreage -> geometry
+# Join acreage -> geometry (join on District_key)
 gdf_join = gdf.merge(acre_df, on=["District_key"], how="left", suffixes=("", "_acre"))
 
 # If State is missing in acreage table, use shapefile's
@@ -203,13 +206,14 @@ if state_col_csv not in acre_df.columns and "State" in gdf_join.columns:
 # 4. LOAD YIELD FEATURES + (OPTIONAL) PREDICTIONS
 # ------------------------------------------------
 @st.cache_data
-def load_yield_features(path):
+def load_yield_features(path: str) -> pd.DataFrame:
     ydf = pd.read_csv(path)
     for c in ["State", "District", "Year"]:
         if c not in ydf.columns:
             raise ValueError(f"Missing '{c}' in yield features CSV")
 
     ydf["Year"] = pd.to_numeric(ydf["Year"], errors="coerce")
+
     if "Yield" in ydf.columns:
         ydf["Yield"] = pd.to_numeric(ydf["Yield"], errors="coerce")
 
@@ -220,12 +224,12 @@ def load_yield_features(path):
     return ydf
 
 @st.cache_data
-def load_yield_predictions(path, curr_year):
+def load_yield_predictions(path: str, curr_year: int) -> pd.DataFrame:
     if not path or not Path(path).exists():
-        return pd.DataFrame(columns=["State_key","District_key","Year","Predicted_2025_Yield"])
+        return pd.DataFrame(columns=["State_key", "District_key", "Year", "Predicted_2025_Yield"])
 
     pdf = pd.read_csv(path)
-    for c in ["State","District","Year"]:
+    for c in ["State", "District", "Year"]:
         if c not in pdf.columns:
             raise ValueError(f"Missing '{c}' in yield predictions CSV")
 
@@ -235,7 +239,6 @@ def load_yield_predictions(path, curr_year):
     pdf["State_key"] = norm(pdf["State"])
     pdf["District_key"] = norm(pdf["District"])
 
-    # your model usually saved "Predicted_Yield"
     if "Predicted_Yield" in pdf.columns:
         ycol = "Predicted_Yield"
     elif "Predicted_2025_Yield" in pdf.columns:
@@ -245,36 +248,36 @@ def load_yield_predictions(path, curr_year):
         ycol = cand[0] if cand else None
 
     if ycol is None:
-        return pd.DataFrame(columns=["State_key","District_key","Year","Predicted_2025_Yield"])
+        return pd.DataFrame(columns=["State_key", "District_key", "Year", "Predicted_2025_Yield"])
 
-    out = pdf.loc[pdf["Year"] == curr_year, ["State_key","District_key","Year", ycol]].copy()
+    out = pdf.loc[pdf["Year"] == curr_year, ["State_key", "District_key", "Year", ycol]].copy()
     out = out.rename(columns={ycol: "Predicted_2025_Yield"})
     out["Predicted_2025_Yield"] = pd.to_numeric(out["Predicted_2025_Yield"], errors="coerce")
     return out
 
 try:
     ydf = load_yield_features(yield_features_csv)
-    ypred = load_yield_predictions(yield_pred_csv, CURR_YEAR)
+    ypred = load_yield_predictions(yield_pred_csv, int(CURR_YEAR))
 except Exception as e:
     st.error(f"Error loading yield files: {e}")
     st.stop()
 
-# Merge predictions into yield features (only 2025 gets it)
-ydf = ydf.merge(ypred, on=["State_key","District_key","Year"], how="left")
+# Merge predictions into yield features (2025 rows get Predicted_2025_Yield)
+ydf = ydf.merge(ypred, on=["State_key", "District_key", "Year"], how="left")
 
-# Also attach predicted yield into map gdf (2025 only)
-y_map = ydf.loc[ydf["Year"] == CURR_YEAR, ["State_key","District_key","Predicted_2025_Yield"]].drop_duplicates()
-gdf_join = gdf_join.merge(y_map, on=["State_key","District_key"], how="left")
+# Attach predicted yield into map gdf (2025 only)
+y_map = ydf.loc[ydf["Year"] == CURR_YEAR, ["State_key", "District_key", "Predicted_2025_Yield"]].drop_duplicates()
+gdf_join = gdf_join.merge(y_map, on=["State_key", "District_key"], how="left")
 
 # ------------------------------------------------
-# 5. SIDEBAR FILTERS (Acreage filters remain)
+# 5. SIDEBAR FILTERS
 # ------------------------------------------------
 st.sidebar.header("📌 Filters")
 
 if state_col_csv in gdf_join.columns:
-    state_list = sorted(gdf_join[state_col_csv].dropna().unique())
+    state_list = sorted([x for x in gdf_join[state_col_csv].dropna().unique()])
 else:
-    state_list = ["All"]
+    state_list = []
 
 selected_state_filter = st.sidebar.selectbox("Select State:", options=["All"] + state_list, index=0)
 
@@ -290,7 +293,6 @@ stab_opts = st.sidebar.multiselect(
     default=stability_classes
 )
 
-# Map theme selector
 st.sidebar.header("🗺️ Map Theme")
 map_theme = st.sidebar.radio(
     "Color districts by:",
@@ -308,6 +310,9 @@ if selected_state_filter != "All" and state_col_csv in df_view.columns:
 
 if stab_opts:
     df_view = df_view[df_view["Acreage_Stability_Class"].isin(stab_opts)]
+
+df_view = df_view[df_view.geometry.notnull()].copy()
+df_view = df_view[df_view.is_valid].copy()
 
 if df_view.empty:
     st.warning("No districts match the selected filters.")
@@ -329,7 +334,7 @@ def classify_color(stab_class: str) -> str:
         return "#00A000"
     return "#CCCCCC"
 
-# yield colormap (continuous)
+# Yield colormap (continuous)
 yield_vals = df_view["Predicted_2025_Yield"].dropna()
 if len(yield_vals) > 0:
     y_min, y_max = float(yield_vals.min()), float(yield_vals.max())
@@ -347,23 +352,45 @@ total_pred_2025 = df_view["Predicted_2025_Acreage"].sum(skipna=True)
 
 if "Mean_Acreage" in df_view.columns:
     base_area = df_view["Mean_Acreage"].sum(skipna=True)
-    delta_pct = ((total_pred_2025 - base_area) / base_area * 100) if base_area > 0 else None
+    delta_pct = ((total_pred_2025 - base_area) / base_area * 100) if base_area and base_area > 0 else None
 else:
     base_area = None
     delta_pct = None
 
-col1, col2, col3 = st.columns(3)
-with col1:
+kpi1, kpi2, kpi3 = st.columns(3)
+with kpi1:
     st.metric("Total Predicted 2025 Acreage (Lakh ha)", f"{total_pred_2025:.2f}")
-with col2:
-    if base_area is not None and delta_pct is not None:
-        st.metric("Total Mean Acreage (Historical)", f"{base_area:.2f}")
-with col3:
-    if delta_pct is not None:
-        st.metric("Δ 2025 vs Mean (%)", f"{delta_pct:.1f}%")
+with kpi2:
+    st.metric("Total Mean Acreage (Historical)", "-" if base_area is None else f"{base_area:.2f}")
+with kpi3:
+    st.metric("Δ 2025 vs Mean (%)", "-" if delta_pct is None else f"{delta_pct:.1f}%")
 
 # ------------------------------------------------
-# 9. MAP (LEFT) + DISTRICT DETAIL (RIGHT)
+# 9. DISTRICT SELECTION (sidebar dropdown synced with map click)
+# ------------------------------------------------
+all_districts = sorted(df_view[district_col_csv].dropna().unique())
+
+if "selected_district" not in st.session_state:
+    st.session_state["selected_district"] = all_districts[0]
+
+# if current selection not in filtered list, reset
+if st.session_state["selected_district"] not in all_districts:
+    st.session_state["selected_district"] = all_districts[0]
+
+# Sidebar district dropdown (synced key)
+st.sidebar.header("🎯 District")
+st.sidebar.selectbox(
+    "Select District:",
+    all_districts,
+    index=all_districts.index(st.session_state["selected_district"]),
+    key="selected_district"
+)
+
+selected_district = st.session_state["selected_district"]
+drow = df_view[df_view[district_col_csv] == selected_district].iloc[0]
+
+# ------------------------------------------------
+# 10. LAYOUT: MAP + DISTRICT DETAIL
 # ------------------------------------------------
 st.subheader("🗺️ Map & District Insight (Click a district)")
 
@@ -377,20 +404,25 @@ with map_col:
     m = folium.Map(location=[center_lat, center_lon], zoom_start=6, tiles="cartodbpositron")
 
     def style_fn(feature):
+        props = feature["properties"]
         if map_theme == "Acreage Stability Class":
-            stab = feature["properties"].get("Acreage_Stability_Class")
+            stab = props.get("Acreage_Stability_Class")
             color = classify_color(stab)
         else:
-            v = feature["properties"].get("Predicted_2025_Yield")
+            v = props.get("Predicted_2025_Yield")
             if v is None or (isinstance(v, float) and np.isnan(v)) or (yield_cmap is None):
                 color = "#CCCCCC"
             else:
                 color = yield_cmap(v)
         return {"fillColor": color, "color": "black", "weight": 0.5, "fillOpacity": 0.75}
 
-    tooltip_fields = [district_col_csv, state_col_csv, "Acreage_Stability_Class"]
-    tooltip_alias  = ["District", "State", "Acreage Stability"]
-    if "Predicted_2025_Yield" in df_view.columns:
+    tooltip_fields = [district_col_csv, state_col_csv]
+    tooltip_alias  = ["District", "State"]
+
+    if map_theme == "Acreage Stability Class":
+        tooltip_fields += ["Acreage_Stability_Class"]
+        tooltip_alias  += ["Acreage Stability"]
+    else:
         tooltip_fields += ["Predicted_2025_Yield"]
         tooltip_alias  += [f"Pred Yield {CURR_YEAR}"]
 
@@ -399,43 +431,31 @@ with map_col:
         style_function=style_fn,
         highlight_function=lambda x: {"weight": 3, "color": "blue"},
         tooltip=folium.GeoJsonTooltip(fields=tooltip_fields, aliases=tooltip_alias, sticky=False),
+        name="Districts"
     )
     gj.add_to(m)
 
     if map_theme != "Acreage Stability Class" and yield_cmap is not None:
         yield_cmap.add_to(m)
 
-    map_data = st_folium(m, height=550, use_container_width=True, key="soy_map")
+    # ✅ IMPORTANT: do not use width="100%"
+    map_data = st_folium(m, height=550, use_container_width=True, key="district_map")
 
+    # click -> update selected_district
+    clicked_district = None
+    if map_data:
+        props = None
+        if map_data.get("last_active_drawing"):
+            props = map_data["last_active_drawing"].get("properties", {})
+        elif map_data.get("last_object_clicked"):
+            props = map_data["last_object_clicked"].get("properties", {})
+        if props:
+            clicked_district = props.get(district_col_csv)
 
-# Determine selected district from click
-all_districts = sorted(df_view[district_col_csv].dropna().unique())
-clicked_district = None
-if map_data:
-    clicked_props = None
-    if map_data.get("last_active_drawing"):
-        clicked_props = map_data["last_active_drawing"].get("properties", {})
-    elif map_data.get("last_object_clicked"):
-        clicked_props = map_data["last_object_clicked"].get("properties", {})
-    if clicked_props:
-        clicked_district = clicked_props.get(district_col_csv)
+    if clicked_district and clicked_district in all_districts:
+        st.session_state["selected_district"] = clicked_district
+        st.rerun()
 
-if "selected_district" not in st.session_state:
-    st.session_state["selected_district"] = all_districts[0]
-
-if clicked_district:
-    st.session_state["selected_district"] = clicked_district
-
-selected_district = st.session_state["selected_district"]
-if selected_district not in all_districts:
-    selected_district = all_districts[0]
-    st.session_state["selected_district"] = selected_district
-
-drow = df_view[df_view[district_col_csv] == selected_district].iloc[0]
-
-# ------------------------------------------------
-# 10. DISTRICT DETAIL (Acreage) + Yield KPIs
-# ------------------------------------------------
 with detail_col:
     st.markdown(f"### 🔍 {selected_district}")
 
@@ -464,8 +484,13 @@ with detail_col:
         if has_2024:
             ac2024 = drow[acreage_2024_col]
             st.write(f"- 2024 Acreage: **{ac2024:.3f}**")
-            if ac2024 > 0:
+            if ac2024 > 0 and not pd.isna(pred25):
                 st.write(f"- Δ 2025 vs 2024: **{((pred25-ac2024)/ac2024*100):+.1f}%**")
+
+    # Yield KPI (from map join)
+    st.markdown("**Yield (kg/ha or t/ha – as in your file)**")
+    py = drow.get("Predicted_2025_Yield", np.nan)
+    st.write(f"- Predicted Yield {CURR_YEAR}: **{py:.1f}**" if not pd.isna(py) else f"- Predicted Yield {CURR_YEAR}: NA")
 
 # ------------------------------------------------
 # 11. YIELD DRIVER SECTION (Below map)
@@ -473,7 +498,6 @@ with detail_col:
 st.markdown("---")
 st.subheader("🌦️ Yield Drivers (Weather + Phenology) — Selected District")
 
-# Pull district time-series from yield features table using normalized key
 dkey = norm(pd.Series([selected_district])).iloc[0]
 skey = norm(pd.Series([drow.get(state_col_csv, "NA")])).iloc[0]
 
@@ -521,8 +545,11 @@ else:
             st.caption("GPPsum columns not found.")
 
     st.markdown("### Data table (selected district)")
-    show_cols = [c for c in ["Year","Acerage","Yield","Predicted_2025_Yield"] if c in df_dist.columns]
-    st.dataframe(df_dist[show_cols].sort_values("Year"), use_container_width=True)
+    show_cols = [c for c in ["Year", "Acerage", "Yield", "Predicted_2025_Yield"] if c in df_dist.columns]
+    if show_cols:
+        st.dataframe(df_dist[show_cols].sort_values("Year"), use_container_width=True)
+    else:
+        st.dataframe(df_dist.sort_values("Year"), use_container_width=True)
 
 # ------------------------------------------------
 # 12. DISTRICT TABLE (Filtered)
@@ -546,5 +573,3 @@ cols_to_show = [
 cols_to_show = [c for c in cols_to_show if c is not None and c in df_view.columns]
 
 st.dataframe(df_view[cols_to_show].copy().sort_values(district_col_csv), use_container_width=True)
-
-
